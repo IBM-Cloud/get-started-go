@@ -23,5 +23,7 @@ _testmain.go
 *.test
 *.prof
 
+vendor
+
 app
-go-hello-world
+get-started-go

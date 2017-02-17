@@ -1,14 +1,26 @@
 package main
 
 import (
+	"log"
 	"os"
-
+	"net/http"
+	"github.com/cloudfoundry-community/go-cfenv"
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 )
 
-// Binding from JSON
+import "github.com/timjacobi/go-couchdb"
+
 type Visitor struct {
-	Name string `form:"name" json:"name" binding:"required"`
+    Name      string    `json:"name"`
+}
+
+type Visitors []Visitor
+
+type alldocsResult struct {
+	TotalRows int `json:"total_rows"`
+	Offset    int
+	Rows      []map[string]interface{}
 }
 
 func main() {
@@ -18,12 +30,62 @@ func main() {
 
 	r.Static("/static", "./static")
 
+	var dbName = "mydb"
+
+	err := godotenv.Load()
+	if err != nil {
+		log.Println(".env file does not exist")
+	}
+
+  cloudantUrl := os.Getenv("CLOUDANT_URL")
+
+	appEnv, _ := cfenv.Current()
+  _ = appEnv
+  if(appEnv!=nil){
+    cloudantService, _ := appEnv.Services.WithLabel("cloudantNoSQLDB")
+    if(len(cloudantService)>0){
+      cloudantUrl = cloudantService[0].Credentials["url"].(string)
+    }
+  }
+
+  cloudant, err := couchdb.NewClient(cloudantUrl, nil)
+	if err != nil {
+		log.Println("error Cloudant NewClient")
+	}
+
+  //ensure db exists
+  //if the db exists the db will be returned anyway
+  cloudant.CreateDB(dbName)
+
 	r.POST("/api/visitors", func(c *gin.Context) {
-		var json Visitor
-		if c.BindJSON(&json) == nil {
-			c.String(200, "Hello "+json.Name)
+		var visitor Visitor
+
+    if c.BindJSON(&visitor) == nil {
+      cloudant.DB(dbName).Post(visitor)
+
+			c.String(200, "Hello "+visitor.Name)
 		}
+
 	})
+
+  r.GET("/api/visitors", func(c *gin.Context) {
+    var result alldocsResult
+
+    if cloudantUrl == "" {
+      c.JSON(200, gin.H{})
+      return
+    }
+
+    err := cloudant.DB(dbName).AllDocs(&result, couchdb.Options{"include_docs": true})
+    if err != nil {
+      log.Println("error Cloudant AllDocs")
+      c.JSON(http.StatusInternalServerError, gin.H{"error": "unable to fetch docs"})
+    } else {
+      c.JSON(200, result.Rows)
+
+    }
+
+  })
 
 	port := os.Getenv("PORT")
 	if port == "" {
