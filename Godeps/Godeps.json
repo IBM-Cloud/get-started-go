@@ -1,10 +1,7 @@
 {
-	"ImportPath": "get-started-go",
-	"GoVersion": "go1.6",
+	"ImportPath": "github.com/IBM-Bluemix/get-started-go",
+	"GoVersion": "go1.7",
 	"GodepVersion": "v79",
-	"Packages": [
-		"."
-	],
 	"Deps": [
 		{
 			"ImportPath": "github.com/cloudfoundry-community/go-cfenv",
@@ -41,7 +38,7 @@
 		},
 		{
 			"ImportPath": "github.com/mattn/go-isatty",
-			"Rev": "281032e84ae07510239465db46bf442aa44b953a"
+			"Rev": "dda3de49cbfcec471bd7a70e6cc01fcc3ff90109"
 		},
 		{
 			"ImportPath": "github.com/mitchellh/mapstructure",
@@ -53,7 +50,7 @@
 		},
 		{
 			"ImportPath": "golang.org/x/net/context",
-			"Rev": "61557ac0112b576429a0df080e1c2cef5dfbb642"
+			"Rev": "b4690f45fa1cafc47b1c280c2e75116efe40cc13"
 		},
 		{
 			"ImportPath": "golang.org/x/sys/unix",

@@ -3,4 +3,4 @@ applications:
 - name: GetStartedGo
   random-route: true
   memory: 128M
-  buildpack: go_buildpack
+  buildpack: https://github.com/cloudfoundry/go-buildpack
