@@ -27,20 +27,18 @@ func main() {
 	r := gin.Default()
 
 	r.StaticFile("/", "./static/index.html")
-
 	r.Static("/static", "./static")
 
 	var dbName = "mydb"
 
+	//When running locally, get credentials from .env file.
 	err := godotenv.Load()
 	if err != nil {
 		log.Println(".env file does not exist")
 	}
-
   cloudantUrl := os.Getenv("CLOUDANT_URL")
 
 	appEnv, _ := cfenv.Current()
-  _ = appEnv
   if(appEnv!=nil){
     cloudantService, _ := appEnv.Services.WithLabel("cloudantNoSQLDB")
     if(len(cloudantService)>0){
@@ -50,83 +48,56 @@ func main() {
 
   cloudant, err := couchdb.NewClient(cloudantUrl, nil)
 	if err != nil {
-		log.Println("error Cloudant NewClient")
+		log.Println("Can not connect to Cloudant database")
 	}
 
   //ensure db exists
   //if the db exists the db will be returned anyway
   cloudant.CreateDB(dbName)
 
+	/* Endpoint to greet and add a new visitor to database.
+	* Send a POST request to http://localhost:8080/api/visitors with body
+	* {
+	* 	"name": "Bob"
+	* }
+	*/
 	r.POST("/api/visitors", func(c *gin.Context) {
 		var visitor Visitor
-
     if c.BindJSON(&visitor) == nil {
       cloudant.DB(dbName).Post(visitor)
-
 			c.String(200, "Hello "+visitor.Name)
 		}
-
 	})
 
+	/**
+	 * Endpoint to get a JSON array of all the visitors in the database
+	 * REST API example:
+	 * <code>
+	 * GET http://localhost:8080/api/visitors
+	 * </code>
+	 *
+	 * Response:
+	 * [ "Bob", "Jane" ]
+	 * @return An array of all the visitor names
+	 */
   r.GET("/api/visitors", func(c *gin.Context) {
     var result alldocsResult
-
     if cloudantUrl == "" {
       c.JSON(200, gin.H{})
       return
     }
-
     err := cloudant.DB(dbName).AllDocs(&result, couchdb.Options{"include_docs": true})
     if err != nil {
-      log.Println("error Cloudant AllDocs")
       c.JSON(http.StatusInternalServerError, gin.H{"error": "unable to fetch docs"})
     } else {
       c.JSON(200, result.Rows)
-
     }
-
   })
 
+	//When running on Bluemix, get the PORT from the environment variable.
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "8080"
+		port = "8080" //Local
 	}
 	r.Run(":" + port)
 }
-
-// package main
-//
-// import (
-// 	"log"
-// 	"net/http"
-// 	"os"
-// 	"html/template"
-// 	//for extracting service credentials from VCAP_SERVICES
-// 	//"github.com/cloudfoundry-community/go-cfenv"
-// )
-//
-// const (
-// 	DEFAULT_PORT = "8080"
-// )
-//
-// var index = template.Must(template.ParseFiles(
-//   "templates/_base.html",
-//   "templates/index.html",
-// ))
-//
-// func helloworld(w http.ResponseWriter, req *http.Request) {
-//   index.Execute(w, nil)
-// }
-//
-// func main() {
-// 	var port string
-// 	if port = os.Getenv("PORT"); len(port) == 0 {
-// 		port = DEFAULT_PORT
-// 	}
-//
-// 	http.HandleFunc("/", helloworld)
-// 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
-//
-// 	log.Printf("Starting app on port %+v\n", port)
-// 	http.ListenAndServe(":"+port, nil)
-// }
