@@ -13,7 +13,7 @@ You'll need the following:
 
 Now you're ready to start working with the simple Go *hello world* app. Clone the repository and change to the directory where the sample app is located.
   ```
-git clone https://github.com/IBM-Bluemix/get-started-go
+git clone https://github.com/IBM-Cloud/get-started-go
 cd get-started-go
   ```
 
