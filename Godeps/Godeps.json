@@ -1,5 +1,5 @@
 {
-	"ImportPath": "github.com/IBM-Bluemix/get-started-go",
+	"ImportPath": "github.com/IBM-Cloud/get-started-go",
 	"GoVersion": "go1.7",
 	"GodepVersion": "v79",
 	"Deps": [

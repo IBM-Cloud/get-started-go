@@ -1,6 +1,8 @@
 # Getting started with Go on IBM Cloud
 To get started, we'll take you through a sample Go hello world app, help you set up a development environment and deploy to IBM Cloud.
 
+The following instructions are for deploying the application as a Cloud Foundry application. To deploy as a container to **IBM Cloud Kubernetes Service** instead, [see README-kubernetes.md](README-kubernetes.md)
+
 ## Prerequisites
 
 You'll need the following:
@@ -43,38 +45,23 @@ The manifest.yml includes basic information about your app, such as the name, ho
 
 ## 4. Deploy the app
 
-You can use the Cloud Foundry CLI to deploy apps.
-
-Choose your API endpoint
-   ```
-cf api <API-endpoint>
-   ```
-
-Replace the *API-endpoint* in the command with an API endpoint from the following list.
-
-|URL                             |Region          |
-|:-------------------------------|:---------------|
-| https://api.ng.bluemix.net     | US South       |
-| https://api.eu-de.bluemix.net  | Germany        |
-| https://api.eu-gb.bluemix.net  | United Kingdom |
-| https://api.au-syd.bluemix.net | Sydney         |
-
-Login to your IBM Cloud account
+You can use the IBM Cloud CLI to deploy apps.
 
   ```
-cf login
+ibmcloud login
+ibmcloud target --cf
   ```
 
 From within the *get-started-go* directory push your app to IBM Cloud
   ```
-cf push
+ibmcloud cf push
   ```
 
-This can take a minute. If there is an error in the deployment process you can use the command `cf logs <Your-App-Name> --recent` to troubleshoot.
+This can take a minute. If there is an error in the deployment process you can use the command `ibmcloud cf logs <Your-App-Name> --recent` to troubleshoot.
 
 When deployment completes you should see a message indicating that your app is running.  View your app at the URL listed in the output of the push command.  You can also issue the
 
  ```
-cf apps
+ibmcloud cf apps
  ```
 command to view your apps status and see the URL.
