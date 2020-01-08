@@ -54,7 +54,6 @@ func main() {
 
 	//ensure db exists
 	//if the db exists the db will be returned anyway
-	cloudant.DeleteDB(dbName)
 	cloudant.CreateDB(dbName)
 
 	/* Endpoint to greet and add a new visitor to database.
